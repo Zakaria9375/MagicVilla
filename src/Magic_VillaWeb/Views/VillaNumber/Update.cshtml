@@ -1,0 +1,39 @@
+﻿@model MagicVilla_Web.Models.VillaNumberVM<MagicVilla_Utility.DTO.VillaNumber.VillaNumberUpdateDTO>
+
+<div>
+    <form method="post" asp-action="Update" asp-controller="VillaNumber">
+        <div class="border p-3 mt-4">
+            <div class="row pt-2">
+                <h2 class="text-primary">Update</h2>
+                <hr />
+            </div>
+            <div class="mb-3 row p-1">
+                <div asp-validation-summary="All" class="text-danger"></div>
+
+                <label asp-for="VillaNumber.Code" class="p-0"></label>
+                <input asp-for="VillaNumber.Code" class="form-control" />
+                <span asp-validation-for="VillaNumber.Code" class="text-danger"></span>
+            </div>
+            <div class="mb-3 row p-1">
+                <label asp-for="VillaNumber.SpecialDetails" class="p-0"></label>
+                <textarea asp-for="VillaNumber.SpecialDetails" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="VillaNumber.SpecialDetails" class="text-danger"></span>
+            </div>
+            <div class="mb-3 row p-1">
+                <label asp-for="VillaNumber.VillaID" class="p-0"></label>
+                <select asp-for="VillaNumber.VillaID" class="form-select" asp-items="@Model.VillaList">
+                    <option value="" disabled selected>--Select Villa--</option>
+                </select>
+                <span asp-validation-for="VillaNumber.VillaID" class="text-danger"></span>
+            </div>
+            <div class="row">
+                <div class="col-6 col-md-3">
+                    <button type="submit" class="btn btn-primary form-control">Update</button>
+                </div>
+                <div class="col-6 col-md-3">
+                    <a asp-controller="VillaNumber" asp-action="Index" class="btn btn-outline-secondary form-control">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

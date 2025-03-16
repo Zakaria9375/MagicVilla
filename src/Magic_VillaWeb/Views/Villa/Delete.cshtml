@@ -1,0 +1,45 @@
+﻿@model MagicVilla_Utility.DTO.Villa.VillaDTO
+
+<div class="container">
+    <h2 class="text-danger">Delete Villa</h2>
+    <hr />
+    <h4>Are you sure you want to delete the following villa?</h4>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <strong>Name:</strong> @Model.Name
+        </div>
+        <div class="col-md-6">
+            <strong>Details:</strong> @Model.Details
+        </div>
+        <div class="col-md-6">
+            <strong>Rate:</strong> @Model.Rate
+        </div>
+        <div class="col-md-6">
+            <strong>Sqft:</strong> @Model.Sqft
+        </div>
+        <div class="col-md-6">
+            <strong>Occupancy:</strong> @Model.Occupancy
+        </div>
+        <div class="col-md-6">
+            <strong>Amenity:</strong> @Model.Amenity
+        </div>
+        <div class="col-md-6">
+            <strong>Image:</strong> <img src="@Model.ImageUrl" alt="Villa Image" style="max-width: 100px;" />
+        </div>
+    </div>
+
+    <form asp-action="DeleteVilla" asp-controller="Villa" method="post" class="mt-4">
+        <!-- Hidden input to pass the id of the villa to the POST action -->
+        <input type="hidden" name="id" value="@Model.Id" />
+
+        <div class="row">
+            <div class="col-6 col-md-3">
+                <button type="submit" class="btn btn-danger form-control">Delete Villa</button>
+            </div>
+            <div class="col-6 col-md-3">
+                <a asp-action="Index" asp-controller="Villa" class="btn btn-outline-secondary form-control">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
