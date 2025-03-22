@@ -9,10 +9,10 @@
             </div>
             <div class="mb-3 row p-1">
                 <div asp-validation-summary="All" class="text-danger"></div>
-
-                <label asp-for="VillaNumber.Code" class="p-0"></label>
-                <input asp-for="VillaNumber.Code" class="form-control" />
-                <span asp-validation-for="VillaNumber.Code" class="text-danger"></span>
+                @if (ViewData["Code"] != null)
+                {
+                    <input type="hidden" name="Code" value="@ViewData["Code"]?.ToString()" />
+                }
             </div>
             <div class="mb-3 row p-1">
                 <label asp-for="VillaNumber.SpecialDetails" class="p-0"></label>

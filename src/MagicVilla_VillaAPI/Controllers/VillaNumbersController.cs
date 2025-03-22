@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
+using Azure;
+using MagicVilla_Utility.DTO.Villa;
 using MagicVilla_Utility.DTO.VillaNumber;
 using MagicVilla_VillaAPI.Models;
 using MagicVilla_VillaAPI.Repository.IRepository;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -14,9 +17,9 @@ namespace MagicVilla_VillaAPI.Controllers
         private readonly IVillaNumberRepository _dbVillaNo = dbVillaNo;
         private readonly IVillaRepository _dbVilla = dbVilla;
 
-        private async Task<bool> IsDuplicateVillaNumber<T>(T model) where T : IVillaNubmerDTO
+        private async Task<bool> IsDuplicateVillaNumber(int Code)
         {
-            var villas = await _dbVillaNo.GetAllAsync(v => v.Code == model.Code);
+            var villas = await _dbVillaNo.GetAllAsync(v => v.Code == Code);
             return villas.Count >= 1;
         }
 
@@ -71,7 +74,7 @@ namespace MagicVilla_VillaAPI.Controllers
                 return BadRequest(SetApiResponseFromModelState<VillaNumberDTO>(ModelState));
             }
 
-            if (await IsDuplicateVillaNumber(createDTO))
+            if (await IsDuplicateVillaNumber(createDTO.Code))
             {
                 ModelState.AddModelError(AppConstants.repeatedVillaNumber, AppConstants.RepeatedVillaNumber);
                 return BadRequest(SetApiResponseFromModelState<VillaNumberDTO>(ModelState));
@@ -115,12 +118,6 @@ namespace MagicVilla_VillaAPI.Controllers
                 return NotFound(SetApiResponse<VillaNumberDTO>(false, HttpStatusCode.NotFound, [string.Format(AppConstants.EnterValidVillaNumber, code)]));
             }
 
-            if (await IsDuplicateVillaNumber(updateDTO))
-            {
-                ModelState.AddModelError(AppConstants.repeatedVillaNumber, AppConstants.RepeatedVillaNumber);
-                return BadRequest(SetApiResponseFromModelState<VillaNumberDTO>(ModelState));
-            }
-
             if (await IsVillaExist(updateDTO.VillaID))
             {
                 ModelState.AddModelError(AppConstants.villaDoesNotExist, string.Format(AppConstants.VillaNotFound, updateDTO.VillaID));
@@ -132,6 +129,34 @@ namespace MagicVilla_VillaAPI.Controllers
             await _dbVillaNo.UpdateAsync(villaNumber);
 
             return Ok(SetApiResponse<VillaNumberDTO>(true, HttpStatusCode.NoContent, [AppConstants.SuccessMessage]));
+        }
+        #endregion
+
+        #region Updating a VillaNumber Partially
+        [HttpPatch("{code:int}", Name = "UpdateVillaNumberPartially")]
+        [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(APIResponse<VillaNumberUpdateDTO>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateVillaNumberPartially(int code, [FromBody] JsonPatchDocument<VillaNumberUpdateDTO> patchDTO)
+        {
+            if (patchDTO == null || code <= 0)
+            {
+                return BadRequest(SetApiResponse<object>(false, HttpStatusCode.BadRequest, [AppConstants.InvalidData]));
+            }
+            var villaNumber = await _dbVillaNo.GetAsync(vn => vn.Code == code);
+            if (villaNumber == null)
+            {
+                return NotFound(SetApiResponse<object>(false, HttpStatusCode.NotFound, [string.Format(AppConstants.EnterValidID, code)]));
+            }
+            var villaNumberDTO = _mapper.Map<VillaNumberUpdateDTO>(villaNumber);
+            patchDTO.ApplyTo(villaNumberDTO, ModelState);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(SetApiResponseFromModelState<object>(ModelState));
+            }
+            _mapper.Map(villaNumberDTO, villaNumber);
+            await _dbVillaNo.UpdateAsync(villaNumber);
+            return Ok(SetApiResponse<VillaNumberUpdateDTO>(true, HttpStatusCode.OK, result: villaNumberDTO));
         }
         #endregion
 

@@ -7,6 +7,7 @@ namespace MagicVilla_Utility.DTO.VillaNumber
     {
         [Required]
         [Range(100, int.MaxValue, ErrorMessage = "Code must be a three-digit number or greater.")]
+        
         public int Code { get; set; }
         [Required]
         public int VillaID { get; set; }

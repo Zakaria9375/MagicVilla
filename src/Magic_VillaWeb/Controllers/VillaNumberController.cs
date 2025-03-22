@@ -6,12 +6,10 @@ using MagicVilla_Web.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.Reflection;
 
 namespace MagicVilla_Web.Controllers
 {
-    public class VillaNumberController(IMapper mapper, ILogger<VillaController> logger, IVillaNumberService villaNumberService, IVillaService villaService) : BaseController(logger, mapper)
+    public class VillaNumberController(IMapper mapper, ILogger<VillaNumberController> logger, IVillaNumberService villaNumberService, IVillaService villaService) : BaseController(logger, mapper)
     {
         private readonly IVillaNumberService _villaNumberService = villaNumberService;
         private readonly IVillaService _villaService = villaService;
@@ -20,17 +18,27 @@ namespace MagicVilla_Web.Controllers
         {
             return response.Messages.FirstOrDefault() ?? "Error occurred while updating the villa.";
         }
+
         private static IEnumerable<SelectListItem> GetVillaList(APIResponse response, int VillaID)
         {
-            return JsonConvert.DeserializeObject<List<VillaDTO>>(Convert.ToString(response.Result)).Select(i => new SelectListItem
+            try
             {
-                Text = i.Name,
-                Value = i.Id.ToString(),
-                Selected = (i.Id == VillaID)
-            });
+                return JsonConvert.DeserializeObject<List<VillaDTO>>(Convert.ToString(response.Result)).Select(i => new SelectListItem
+                {
+                    Text = i.Name,
+                    Value = i.Id.ToString(),
+                    Selected = (i.Id == VillaID)
+                });
+            }
+            catch (Exception ex)
+            {
+
+                return Enumerable.Empty<SelectListItem>();
+            }
+
         }
 
-        #region List all villas
+        #region List all villa numbers
         public async Task<IActionResult> Index()
         {
             List<VillaNumberDTO> list = [];
@@ -68,7 +76,6 @@ namespace MagicVilla_Web.Controllers
                     return RedirectToAction("Index");
                 }
                 ModelState.AddModelError("", GetFirstErrMessage(response));
-
             }
             var villaResponse = await _villaService.GetAllAsync<APIResponse>();
             if (villaResponse != null && villaResponse.IsSuccess && villaResponse.Result is not null)
@@ -91,20 +98,20 @@ namespace MagicVilla_Web.Controllers
             else
             {
                 ModelState.AddModelError("", GetFirstErrMessage(villas));
-
+                return NotFound();
             }
             var villaNumber = await _villaNumberService.GetAsync<APIResponse>(Code);
-            if (villaNumber != null && villaNumber.IsSuccess && villaNumber.Result is not null)
+            if (villaNumber == null || !villaNumber.IsSuccess || villaNumber.Result is null)
             {
-                var deserializedVillaNumber = JsonConvert.DeserializeObject<VillaDTO>(Convert.ToString(villaNumber.Result));
-                vm.VillaNumber = _mapper.Map<VillaNumberUpdateDTO>(deserializedVillaNumber);
-                return View("Update", vm);
+                ModelState.AddModelError("", "Villa Number not found.");
+                return NotFound();
             }
-            else
-            {
-                ModelState.AddModelError("", GetFirstErrMessage(villaNumber));
-            }
-            return NotFound();
+
+            var deserializedVillaNumber = villaNumber.Result as VillaNumberDTO
+    ?? JsonConvert.DeserializeObject<VillaNumberDTO>(Convert.ToString(villaNumber.Result));
+            vm.VillaNumber = _mapper.Map<VillaNumberUpdateDTO>(deserializedVillaNumber);
+            ViewData["Code"] = Code;
+            return View("Update", vm);
         }
 
         [HttpPost]
@@ -119,9 +126,6 @@ namespace MagicVilla_Web.Controllers
                 {
                     return RedirectToAction("Index");
                 }
-            }
-            else
-            {
                 ModelState.AddModelError("", GetFirstErrMessage(response));
             }
 
@@ -130,7 +134,7 @@ namespace MagicVilla_Web.Controllers
             {
                 model.VillaList = GetVillaList(villaResponse, model.VillaNumber.VillaID);
             }
-            return View("Upddate", model);
+            return View("Update", model);
         }
         #endregion
 
@@ -138,7 +142,7 @@ namespace MagicVilla_Web.Controllers
         public async Task<IActionResult> Delete(int Code)
         {
             var response = await _villaNumberService.GetAsync<APIResponse>(Code);
-            if (response != null && response.IsSuccess)
+            if (response != null && response.IsSuccess && response.Result is not null)
             {
                 var villaNumber = JsonConvert.DeserializeObject<VillaNumberDTO>(Convert.ToString(response.Result));
                 return View(villaNumber);
@@ -148,7 +152,7 @@ namespace MagicVilla_Web.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteVilla(int Code)
+        public async Task<IActionResult> DeleteVillaNumber(int Code)
         {
             var response = await _villaNumberService.DeleteAsync<APIResponse>(Code);
             if (response != null && response.IsSuccess)
