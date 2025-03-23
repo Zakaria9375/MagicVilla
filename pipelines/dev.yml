@@ -1,0 +1,20 @@
+trigger:
+  branches:
+    exclude:
+      - main
+
+pool :
+  vmImage: 'ubuntu-latest'
+
+# resources:
+#   pipelines:
+#     - pipeline: Azure
+#       source: SocialFeed.Backend.Azure
+#       trigger: true
+
+stages:
+  - template: '.\build.yml'
+  # - template: '.\deploy.yml'
+  #   parameters:
+  #     appName: magic-villa-api
+  #     packageName: 

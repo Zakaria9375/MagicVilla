@@ -1,0 +1,30 @@
+
+stages:
+  - stage:
+    displayName: Build App
+
+    jobs:
+      - job: Build
+        displayName: Build
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        steps:
+          - task: DotNetCoreCLI@2
+            displayName: Build
+            inputs:
+              command: "build"
+              projects: |
+                $(workingDirectory)/**/*.csproj
+              arguments: --configuration Release
+
+          - task: DotNetCoreCLI@2
+            displayName: Publish
+            inputs:
+              command: "publish"
+              publishWebProjects: true
+              arguments: --configuration Release --output $(Build.ArtifactStagingDirectory)
+              zipAfterPublish: true
+
+          - publish: $(Build.ArtifactStagingDirectory)
+            artifact: drop1
