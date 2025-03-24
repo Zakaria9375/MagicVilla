@@ -47,6 +47,6 @@ jobs:
       uses: azure/webapps-deploy@v3
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.MAGIC_VILLA_API_2025_0FBB }}
+        publish-profile: ${{ secrets.MAGIC_VILLA_WEB_2025_0FBB }}
         slot-name: 'Production'
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
