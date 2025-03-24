@@ -1,15 +1,15 @@
-name: Build and deploy MagicVillaAPI to magic-villa-api-2025
+name: Build and deploy MagicVillaWeb to magic-villa-web-2025
 on:
   push:
     branches:
     - main
 
 env:
-  AZURE_WEBAPP_NAME: magic-villa-api-2025
-  AZURE_WEBAPP_PACKAGE_PATH: src/MagicVilla_VillaAPI/publish
+  AZURE_WEBAPP_NAME: magic-villa-web-2025
+  AZURE_WEBAPP_PACKAGE_PATH: src/MagicVilla_VillaWeb/publish
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 8.0.x
-  WORKING_DIRECTORY: src/MagicVilla_VillaAPI
+  WORKING_DIRECTORY: src/MagicVilla_VillaWeb
 
 jobs:
   build:
