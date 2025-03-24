@@ -6,10 +6,10 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: magic-villa-web-2025
-  AZURE_WEBAPP_PACKAGE_PATH: src/MagicVilla_VillaWeb/publish
+  AZURE_WEBAPP_PACKAGE_PATH: src/Magic_VillaWeb/publish
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 8.0.x
-  WORKING_DIRECTORY: src/MagicVilla_VillaWeb
+  WORKING_DIRECTORY: src/Magic_VillaWeb
 
 jobs:
   build:
