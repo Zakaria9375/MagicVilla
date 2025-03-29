@@ -20,12 +20,16 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+
     - name: Replace Connection String in appsettings.json
       run: |
         (Get-Content "${{ env.WORKING_DIRECTORY }}/appsettings.json") -replace '__DATABASE_CONNECTION__', '${{ secrets.ConnectionString }}' | Set-Content "${{ env.WORKING_DIRECTORY }}/appsettings.json"
       shell: pwsh
+    - name: Logging in appsettings.json
+      run: Get-Content "${{ env.WORKING_DIRECTORY }}/appsettings.json" | Out-String | Write-Output
+      shell: pwsh
 
-    - name: Restore
+    - name: Install Deps
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
     - name: Build
       run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
